@@ -1,13 +1,29 @@
-var data =  require("./fakeData");
+var data = require("./fakeData");
 
-module.exports =  function(req, res) {
-  
-    var id =  req.query.id;
+module.exports = function (req, res) {
+  const userId = req.params.id;
+  const { name, job } = req.body;
+  let userDataIndex;
 
-    const reg = data.find(d => id == id);
-    reg.name = req.body.name;
-    reg.job = req.body.job;
+  // buscar pelo usuário no banco
+  const oldUserData = data.find((searchUser, index) => {
+    if (searchUser.id == userId) {
+      userDataIndex = index;
+      return searchUser;
+    }
+  });
 
-    res.send(reg);
+  // caso o usuário exista, atualiza os dados que foram inseridos
+  if (oldUserData && userDataIndex) {
+    const newUserData = {
+      id: Number(userId),
+      name: name ? name : oldUserData.name,
+      job: job ? job : oldUserData.job,
+    };
+    data.splice(userDataIndex, 1, newUserData);
 
+    res.send({ message: "usuário atualizado", user: newUserData });
+  } else {
+    res.status(404).send({ message: "usuário não encontrado" });
+  }
 };

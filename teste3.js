@@ -1,15 +1,21 @@
-var data =  require("./fakeData");
+var data = require("./fakeData");
 
-module.exports = function(req, res) {
-  
-    var name =  req.query.name;
+module.exports = function (req, res) {
+  const userId = req.params.id;
+  let userDataIndex;
 
-    for(let i = 0; i < data.length;  i++) {
-        if(i.name == name) {
-            data[i] = null;
-        }
+  const user = data.find((searchUser, index) => {
+    if (searchUser.id == userId) {
+      userDataIndex = index;
+      return searchUser;
     }
+  });
 
-    res.send("success");
+  if (userDataIndex && user) {
+    const deletedUser = data.splice(userDataIndex, 1);
 
+    res.send({ message: "usuário deletado!!", user: deletedUser });
+  } else {
+    res.status(404).send({ message: "usuário não encontrado" });
+  }
 };
